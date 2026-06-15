@@ -6,24 +6,18 @@ peso_mascota = 0.0
 color_mascota = ""
 
 def registrar_mascota():
-
     global nombre_mascota, tipo_mascota, edad_mascota, raza_mascota, peso_mascota, color_mascota
-
     print("\n" + "="*50)
     print("REGISTRO DE MASCOTA")
     print("="*50)
-
     nombre_mascota = input("Ingrese el nombre de la mascota: ").strip()
     tipo_mascota = input("Ingrese el tipo de mascota (perro, gato, etc.): ").strip()
-
     try:
         edad_mascota = int(input("Ingrese la edad de la mascota (años): "))
     except ValueError:
         print("Error: La edad debe ser un número entero.")
         edad_mascota = 0
-
     raza_mascota = input("Ingrese la raza de la mascota: ").strip()
-
     try:
         peso_mascota = float(input("Ingrese el peso de la mascota (kg): "))
     except ValueError:
@@ -31,7 +25,6 @@ def registrar_mascota():
         peso_mascota = 0.0
 
     color_mascota = input("Ingrese el color de la mascota: ").strip()
-
     print("\n✓ Mascota registrada exitosamente.")
 
 def mostrar_informacion():
