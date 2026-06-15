@@ -1,10 +1,3 @@
-# ========================================
-# PROGRAMA DE MASCOTAS - PROGRAMACIÓN TRADICIONAL
-# ========================================
-# Este programa gestiona datos de mascotas
-# usando funciones y variables sin clases
-
-# Variables globales para almacenar datos de la mascota
 nombre_mascota = ""
 tipo_mascota = ""
 edad_mascota = 0
@@ -13,10 +6,7 @@ peso_mascota = 0.0
 color_mascota = ""
 
 def registrar_mascota():
-    """
-    Función para registrar los datos de una mascota.
-    Solicita información del usuario mediante teclado.
-    """
+
     global nombre_mascota, tipo_mascota, edad_mascota, raza_mascota, peso_mascota, color_mascota
 
     print("\n" + "="*50)
@@ -63,7 +53,6 @@ def mostrar_informacion():
     print("="*50)
 
 def obtener_descripcion():
-
     if not nombre_mascota:
         print("\n✗ Error: No hay datos de mascota registrados.")
         return
@@ -89,7 +78,6 @@ def menu_principal():
         print("3. Ver descripción de la mascota")
         print("4. Salir")
         print("="*50)
-
         opcion = input("Seleccione una opción (1-4): ").strip()
         if opcion == "1":
             registrar_mascota()
@@ -105,16 +93,10 @@ def menu_principal():
             print("\n✗ Opción inválida. Por favor, seleccione una opción del 1 al 4.")
 
 def main():
-    """
-    Función principal del programa.
-    """
     print("\n╔════════════════════════════════════════════════════╗")
     print("  ║    BIENVENIDO AL SISTEMA DE GESTIÓN DE MASCOTAS    ║")
     print("  ║         Programación Tradicional en Python         ║")
     print("  ╚════════════════════════════════════════════════════╝")
-
     menu_principal()
-
-# Punto de entrada del programa
 if __name__ == "__main__":
     main()
