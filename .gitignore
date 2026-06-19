@@ -1,0 +1,36 @@
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Entornos virtuales
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Archivos de compilación
+*.pyc
+*.pyo
+
+# Archivos temporales
+*.tmp
+*.bak
+*.log
+
