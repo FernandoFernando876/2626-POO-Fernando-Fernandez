@@ -4,9 +4,9 @@
 
 ## Descripción del Sistema
 
-Este proyecto implementa un sistema de gestión de restaurante que demuestra la aplicación práctica de los principios SOLID (Single Responsibility, Open/Closed, Liskov Substitution Principle). El sistema permite registrar productos, bebidas y clientes mediante un menú interactivo ejecutado desde consola.
+Este proyecto implementa un sistema de gestión de restaurante que demuestra la aplicación práctica de los principios SOLID. El sistema permite registrar productos, bebidas y usuarios mediante un menú interactivo por consola.
 
-El proyecto fue desarrollado como parte de la **Semana 8 - Parcial 1** del curso de Programación Orientada a Objetos en Python, utilizando los conceptos de herencia, polimorfismo y encapsulamiento para mantener un código limpio, mantenible y escalable.
+Esta versión corresponde a la entrega de **Semana 9 - Parcial 1**, donde se incorporan las principales estructuras de datos de Python (list, tuple, dict, set) aplicadas de forma funcional dentro del servicio del restaurante.
 
 ## Estructura del Proyecto
 
@@ -16,7 +16,8 @@ restaurante_app/
 │   ├── __init__.py
 │   ├── producto.py         # Clase base Producto
 │   ├── bebida.py           # Clase Bebida (hereda de Producto)
-│   └── cliente.py          # Clase Cliente
+│   ├── cliente.py          # (compatibilidad histórica)
+│   └── usuario.py          # Clase Usuario (entidad general)
 ├── servicios/
 │   ├── __init__.py
 │   └── restaurante.py      # Servicio que administra colecciones
@@ -54,40 +55,44 @@ restaurante_app/
 
 **Principio SOLID aplicado:** Single Responsibility (S) — Encargada únicamente de extender datos de bebidas sin alterar la lógica general.
 
-### `modelos/cliente.py` — Clase `Cliente`
-**Responsabilidad única:** Representar a un cliente registrado en el sistema.
+### `modelos/usuario.py` — Clase `Usuario`
+**Responsabilidad única:** Representar a una persona registrada en el sistema. Se utiliza una entidad general `Usuario` para permitir evolución futura hacia tipos especializados sin implementar aún una jerarquía adicional.
 
 - **Atributos:**
-  - `identificacion` (str): ID única del cliente
+  - `identificacion` (str): ID única del usuario
   - `nombre` (str): Nombre completo
   - `correo` (str): Correo electrónico
 
 - **Métodos:**
-  - `__init__()`: Inicializa un cliente
-  - `mostrar_informacion()`: Devuelve una representación textual del cliente
+  - `__init__()`: Inicializa un usuario
+  - `mostrar_informacion()`: Devuelve una representación textual del usuario
 
-**Principio SOLID aplicado:** Single Responsibility (S) — Solo representa datos de cliente.
+**Principio SOLID aplicado:** Single Responsibility (S) — Solo representa datos generales de una persona registrada.
 
 ### `servicios/restaurante.py` — Clase `Restaurante`
-**Responsabilidad única:** Administrar y orquestar el registro, validación y listado de productos y clientes.
+**Responsabilidad única:** Administrar y orquestar el registro, validación y listado de productos y usuarios.
 
 - **Atributos privados:**
   - `_productos` (List[Producto]): Colección de productos y bebidas
-  - `_clientes` (List[Cliente]): Colección de clientes
+  - `_usuarios` (List[Usuario]): Colección dinámica de usuarios registrados
 
-- **Métodos públicos:**
-  - `registrar_producto(producto)`: Agrega un producto (válida duplicados)
-  - `listar_productos()`: Devuelve información formateada de todos los productos
-  - `registrar_cliente(cliente)`: Agrega un cliente (válida duplicados)
-  - `listar_clientes()`: Devuelve información formateada de todos los clientes
+- **Métodos públicos relevantes:**
+  - `registrar_producto(producto)`: Agrega un producto (valida duplicados)
+  - `buscar_producto(codigo)`: Busca un producto por su código
+  - `actualizar_producto(codigo, ...)`: Actualiza campos de un producto
+  - `eliminar_producto(codigo)`: Elimina un producto
+  - `listar_productos()`: Devuelve información de todos los productos
+  - `registrar_usuario(usuario)`: Agrega un usuario (valida duplicados)
+  - `listar_usuarios()`: Devuelve información de todos los usuarios
+  - `obtener_categorias_unicas()`: Devuelve un set con las categorías únicas
 
 - **Métodos privados:**
   - `_existe_codigo_producto(codigo)`: Valida códigos únicos
-  - `_existe_identificacion_cliente(identificacion)`: Valida IDs únicas
+  - `_existe_identificacion_usuario(identificacion)`: Valida IDs únicas
 
 **Principio SOLID aplicado:**
   - Single Responsibility (S): Solo administra las colecciones
-  - Encapsulamiento: Los atributos `_productos` y `_clientes` son privados
+  - Encapsulamiento: Los atributos `_productos` y `_usuarios` son privados
 
 ### `main.py` — Punto de Entrada
 **Responsabilidad única:** Interactuar con el usuario y llamar a los métodos del servicio `Restaurante`.
@@ -177,6 +182,13 @@ def listar_productos(self) -> List[str]:
     return [p.mostrar_informacion() for p in self._productos]
 ```
 
+## Uso de las Estructuras de Datos
+
+- Lista (list): Se utiliza para almacenar las colecciones dinámicas de objetos — `_productos` y `_usuarios` dentro de `Restaurante`.
+- Tupla (tuple): Se usa para representar las opciones del menú (`MENU_OPTIONS`) que deben permanecer estables durante la ejecución.
+- Diccionario (dict): Se emplea en `main.py` para asociar cada opción del menú con la función que la ejecuta (`menu_actions`), representando una relación clave → valor clara y eficiente.
+- Conjunto (set): Se utiliza en `Restaurante.obtener_categorias_unicas()` para obtener las categorías de productos sin duplicados y presentarlas al usuario.
+
 ## Instrucciones de Ejecución
 
 ### 1. Requisitos
@@ -187,27 +199,30 @@ def listar_productos(self) -> List[str]:
 
 Desde la carpeta raíz del repositorio:
 
-```bash
-cd restaurante_app
+```powershell
+cd "restaurante_app";
 python main.py
 ```
 
 ### 3. Menú Interactivo
 
-El programa presentará un menú con las siguientes opciones:
+El programa presentará un menú con las siguientes opciones mínimas (Semana 9):
 
 ```
 ========================================
         SISTEMA DE RESTAURANTE
 ========================================
 1. Registrar producto
-2. Registrar bebida
-3. Registrar cliente
+2. Buscar producto
+3. Actualizar producto
+4. Eliminar producto
+5. Listar productos
 ----------------------------------------
-4. Listar productos
-5. Listar clientes
+6. Registrar usuario
+7. Listar usuarios
 ----------------------------------------
-6. Salir
+8. Mostrar categorías
+9. Salir
 ```
 
 ### 4. Flujo de Uso
@@ -220,7 +235,7 @@ El programa presentará un menú con las siguientes opciones:
    - Ingresa código, nombre, categoría, precio, tamaño y envase
    - Se valida que el código sea único y el precio > 0
 
-3. **Registrar Cliente:**
+3. **Registrar Usuario:**
    - Ingresa identificación, nombre y correo
    - Se valida que la ID sea única y el correo tenga formato válido
 

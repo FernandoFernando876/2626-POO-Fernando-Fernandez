@@ -13,9 +13,10 @@ MENU_OPTIONS = (
     "4. Eliminar producto",
     "5. Listar productos",
     "6. Registrar usuario",
-    "7. Listar usuarios",
-    "8. Mostrar categorías",
-    "9. Salir",
+    "7. Eliminar usuario",
+    "8. Listar usuarios",
+    "9. Mostrar categorías",
+    "10. Salir",
 )
 
 def mostrar_menu() -> None:
@@ -171,6 +172,20 @@ def eliminar_producto(rest: Restaurante) -> None:
     else:
         print("Producto no encontrado. No se eliminó.")
 
+def eliminar_usuario(rest: Restaurante) -> None:
+    identificacion = solicitar_input("Identificación del usuario a eliminar: ")
+    if not identificacion:
+        print("Identificación vacía.")
+        return
+    confirmado = solicitar_input("Confirma eliminación del usuario? (s/n): ")
+    if confirmado.lower() != 's':
+        print("Eliminación cancelada.")
+        return
+    if rest.eliminar_usuario(identificacion):
+        print("Usuario eliminado correctamente.")
+    else:
+        print("Usuario no encontrado. No se eliminó.")
+
 def listar_usuarios(rest: Restaurante) -> None:
     print("\nListado de usuarios:")
     usuarios = rest.listar_usuarios()
@@ -200,14 +215,15 @@ def main() -> None:
         "4": lambda r: eliminar_producto(r),
         "5": lambda r: listar_productos(r),
         "6": lambda r: registrar_usuario(r),
-        "7": lambda r: listar_usuarios(r),
-        "8": lambda r: mostrar_categorias(r),
+        "7": lambda r: eliminar_usuario(r),
+        "8": lambda r: listar_usuarios(r),
+        "9": lambda r: mostrar_categorias(r),
     }
 
     while True:
         mostrar_menu()
         opcion = solicitar_input("Seleccione una opción: ")
-        if opcion == "9":
+        if opcion == "10":
             print("Saliendo... ¡hasta luego!")
             break
         accion = menu_actions.get(opcion)
@@ -222,4 +238,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 

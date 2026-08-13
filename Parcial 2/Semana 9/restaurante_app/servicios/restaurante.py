@@ -94,6 +94,15 @@ class Restaurante:
     def listar_usuarios(self) -> List[str]:
         return [u.mostrar_informacion() for u in self._usuarios]
 
+    def eliminar_usuario(self, identificacion: str) -> bool:
+        """Elimina un usuario por identificación. Devuelve True si se eliminó."""
+        identificacion = identificacion.strip()
+        for idx, u in enumerate(self._usuarios):
+            if u.identificacion == identificacion:
+                del self._usuarios[idx]
+                return True
+        return False
+
     # Compatibilidad: métodos antiguos que delegan a los nuevos nombres
     def registrar_cliente(self, cliente: Usuario) -> bool:
         return self.registrar_usuario(cliente)
@@ -103,4 +112,9 @@ class Restaurante:
 
     def listar_clientes(self) -> List[str]:
         return self.listar_usuarios()
+
+    def eliminar_cliente(self, identificacion: str) -> bool:
+        """Compatibilidad: elimina un cliente por identificación delegando al nuevo método."""
+        return self.eliminar_usuario(identificacion)
+
 
