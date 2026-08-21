@@ -1,4 +1,3 @@
-"""
-Paquete de servicios para restaurante_app
-"""
+﻿"""Paquete de servicios del sistema de restaurante."""
 
+__all__ = ["archivo_servicio", "restaurante"]

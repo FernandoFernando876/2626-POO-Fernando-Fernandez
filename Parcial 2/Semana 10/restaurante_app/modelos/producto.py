@@ -59,4 +59,3 @@ class Producto:
             categoria=datos["categoria"],
             precio=datos["precio"],
         )
-
