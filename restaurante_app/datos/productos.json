@@ -1,0 +1,9 @@
+[
+  {
+    "tipo": "Producto",
+    "codigo": "233344",
+    "nombre": "soda",
+    "categoria": "bebida",
+    "precio": 2.0
+  }
+]
