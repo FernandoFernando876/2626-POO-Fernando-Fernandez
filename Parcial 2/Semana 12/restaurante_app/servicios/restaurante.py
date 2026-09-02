@@ -135,7 +135,6 @@ class Restaurante:
             return False
 
         try:
-            # Producto.vender validará cantidad y stock
             producto.vender(cantidad)
         except ValueError:
             return False

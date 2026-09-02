@@ -1,14 +1,22 @@
-# restaurante_app - Semana 11
+# restaurante_app - Semana 12
 
 Estudiante: Fernando Fernández
 
 ## Descripción del sistema
-Evolución del sistema de administración de un restaurante para incorporar:
-- Persistencia en JSON de productos, usuarios y ventas.
-- Control de stock por producto.
-- Operación de venta que relaciona Usuario + Producto → Venta.
+Se mantiene la aplicación de gestión del restaurante desarrollada en semanas anteriores, con persistencia en JSON, control de stock y relación `Usuario + Producto -> Venta`, pero incorporando optimizaciones de rendimiento mediante colecciones auxiliares en memoria.
 
-Se mantienen las colecciones como objetos de dominio (`Producto`, `Usuario`, `Venta`) y la lógica de negocio en el servicio `Restaurante`.
+La mejora principal consiste en evitar recorridos completos de listas cuando ya existe una clave única conocida, como el código del producto o la identificación del usuario.
+
+## Mejoras aplicadas
+- Se conservan las listas principales `self._productos`, `self._usuarios` y `self._ventas` para almacenar, recorrer y persistir objetos.
+- Se agregan índices en memoria con `dict` para búsquedas rápidas:
+  - `self._productos_por_codigo`
+  - `self._usuarios_por_identificacion`
+  - `self._ventas_por_usuario`
+- La consulta de ventas por usuario ya no recorre toda la colección de ventas cada vez: se accede directamente por clave.
+- Se reconstruyen los índices al inicializar el servicio a partir de los datos cargados desde JSON, manteniendo coherencia tras reinicios.
+- Se mantiene sincronización de índices al registrar, eliminar y vender productos, sin dejar de usar la colección principal del sistema.
+- Se sigue usando `set` de forma segura para obtener categorías únicas mediante comprensión, sin reemplazar el modelo por diccionarios.
 
 ## Estructura del proyecto
 restaurante_app/
@@ -28,26 +36,10 @@ restaurante_app/
 ├── main.py
 └── README.md
 
-## Componentes principales
-- `modelos/producto.py`: ahora incluye el atributo `stock`, validaciones y el método `vender(cantidad)` que protege contra stock negativo.
-- `modelos/usuario.py`: representacion de usuario y serialización/deserialización a JSON.
-- `modelos/venta.py`: representa una venta con `usuario_id`, `producto_codigo` y `cantidad`.
-- `servicios/restaurante.py`: administra productos, usuarios y ventas; implementa `vender_producto` y consultas de ventas por usuario.
-- `servicios/archivo_servicio.py`: centraliza lectura/escritura de `productos.json`, `usuarios.json` y `ventas.json` usando `json.load()` y `json.dump()`.
-- `main.py`: interfaz por consola para registrar productos/usuarios, realizar ventas y consultar ventas por usuario. Guarda las colecciones después de cada operación que las modifique.
-
-## Stock y ventas
-- Al registrar un producto se solicita el `stock` inicial.
-- La operación de venta valida que el usuario exista, que el producto exista, que la cantidad sea válida y que haya stock suficiente.
-- Si la venta es válida, se crea un objeto `Venta`, se agrega a la colección de ventas y se disminuye el stock del producto.
-- Tras una venta correcta se guardan `ventas.json` y `productos.json`.
-
-## Persistencia en JSON
-- `productos.json`: lista de productos con su stock actualizado.
-- `usuarios.json`: lista de usuarios registrados.
-- `ventas.json`: lista de ventas realizadas.
-
-Se controlan excepciones específicas: `FileNotFoundError`, `json.JSONDecodeError`, `PermissionError`, `KeyError` y `ValueError` para validar registros.
+## Colecciones utilizadas
+- `list`: almacena productos, usuarios y ventas para persistir y listar registros.
+- `dict`: acelera búsquedas por código de producto, identificación de usuario y consulta de ventas por usuario.
+- `set`: obtiene categorías únicas sin duplicados.
 
 ## Cómo ejecutar
 Desde la carpeta `restaurante_app`:
@@ -56,12 +48,14 @@ Desde la carpeta `restaurante_app`:
 python main.py
 ```
 
-Usar el menú para registrar usuarios/productos, vender y consultar ventas. Tras cerrar y volver a ejecutar, los datos registrados deben recuperarse.
+## Pruebas principales realizadas
+- Registro de producto y usuario.
+- Búsqueda rápida de producto por código.
+- Búsqueda rápida de usuario por identificación.
+- Consulta de ventas por usuario usando el índice auxiliar.
+- Venta válida con actualización del stock.
+- Verificación de coherencia de índices tras registrar, modificar y eliminar información.
+- Reinicio del sistema y reconstrucción de índices desde los archivos JSON.
 
-## Pruebas realizadas
-- Registro de usuario y producto con stock
-- Venta válida que disminuye el stock y queda registrada en `ventas.json`
-- Intento de venta con cantidad mayor al stock: operación rechazada y datos sin cambios
-- Reinicio de la aplicación: productos, usuarios y ventas se recuperan desde JSON
-
-
+## Resultado esperado
+La aplicación sigue funcionando igual que en la Semana 11, pero con búsquedas y consultas más eficientes al usar estructuras auxiliares de tipo `dict` sin perder la claridad del diseño modular.
