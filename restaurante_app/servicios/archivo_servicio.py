@@ -3,9 +3,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from modelos.producto import Producto
-from modelos.usuario import Usuario
-from modelos.venta import Venta
+try:
+    from restaurante_app.modelos.producto import Producto
+    from restaurante_app.modelos.usuario import Usuario
+    from restaurante_app.modelos.venta import Venta
+except ImportError:  # pragma: no cover
+    from modelos.producto import Producto
+    from modelos.usuario import Usuario
+    from modelos.venta import Venta
 
 
 class ArchivoServicio:

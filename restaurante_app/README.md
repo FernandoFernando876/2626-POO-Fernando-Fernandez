@@ -1,61 +1,73 @@
-# restaurante_app - Semana 12
+# restaurante_app - Semana 13
 
-Estudiante: Fernando Fernández
+Aplicación base con interfaz gráfica para un restaurante, siguiendo la organización modular de modelos, servicios, datos y vistas.
 
-## Descripción del sistema
-Se mantiene la aplicación de gestión del restaurante desarrollada en semanas anteriores, con persistencia en JSON, control de stock y relación `Usuario + Producto -> Venta`, pero incorporando optimizaciones de rendimiento mediante colecciones auxiliares en memoria.
-
-La mejora principal consiste en evitar recorridos completos de listas cuando ya existe una clave única conocida, como el código del producto o la identificación del usuario.
-
-## Mejoras aplicadas
-- Se conservan las listas principales `self._productos`, `self._usuarios` y `self._ventas` para almacenar, recorrer y persistir objetos.
-- Se agregan índices en memoria con `dict` para búsquedas rápidas:
-  - `self._productos_por_codigo`
-  - `self._usuarios_por_identificacion`
-  - `self._ventas_por_usuario`
-- La consulta de ventas por usuario ya no recorre toda la colección de ventas cada vez: se accede directamente por clave.
-- Se reconstruyen los índices al inicializar el servicio a partir de los datos cargados desde JSON, manteniendo coherencia tras reinicios.
-- Se mantiene sincronización de índices al registrar, eliminar y vender productos, sin dejar de usar la colección principal del sistema.
-- Se sigue usando `set` de forma segura para obtener categorías únicas mediante comprensión, sin reemplazar el modelo por diccionarios.
+## Propósito
+Esta versión mantiene una estructura clara para trabajar con:
+- productos cargados desde JSON,
+- usuarios para la simulación de acceso,
+- una pantalla de login y una vista principal en la misma ventana,
+- separación entre lógica del negocio y presentación gráfica.
 
 ## Estructura del proyecto
+
 restaurante_app/
 ├── datos/
 │   ├── productos.json
-│   ├── usuarios.json
-│   └── ventas.json
+│   └── usuarios.json
 ├── modelos/
 │   ├── __init__.py
 │   ├── producto.py
-│   ├── usuario.py
-│   └── venta.py
+│   └── usuario.py
 ├── servicios/
 │   ├── __init__.py
 │   ├── archivo_servicio.py
-│   └── restaurante.py
+│   └── restaurante_servicio.py
+├── ui/
+│   ├── __init__.py
+│   ├── login_view.py
+│   └── main_view.py
+├── __init__.py
 ├── main.py
-└── README.md
+├── README.md
+└── run_simulation.py
 
-## Colecciones utilizadas
-- `list`: almacena productos, usuarios y ventas para persistir y listar registros.
-- `dict`: acelera búsquedas por código de producto, identificación de usuario y consulta de ventas por usuario.
-- `set`: obtiene categorías únicas sin duplicados.
+## Flujo de la aplicación
+1. Se inicia la aplicación desde `main.py`.
+2. Se crea una sola ventana de Tkinter.
+3. Primero se muestra `LoginView`.
+4. Se valida el usuario y la contraseña con `RestauranteServicio`.
+5. Si el acceso es correcto, se muestra `MainView` dentro de la misma ventana.
+6. Desde la vista principal se pueden consultar productos y usuarios cargados desde JSON.
+7. La opción de cerrar sesión regresa al login sin crear otra ventana.
+
+## Archivos principales
+- `modelo/producto.py`: representa los productos del restaurante.
+- `modelo/usuario.py`: representa los usuarios con acceso simulado.
+- `servicios/archivo_servicio.py`: carga los datos desde archivos JSON.
+- `servicios/restaurante_servicio.py`: centraliza la validación y consulta de usuarios/productos.
+- `ui/login_view.py`: pantalla de inicio de sesión.
+- `ui/main_view.py`: panel principal con opciones de consulta.
+- `main.py`: prepara la ventana, conecta las vistas y controla el cambio entre login y panel principal.
 
 ## Cómo ejecutar
-Desde la carpeta `restaurante_app`:
+Desde la raíz del repositorio:
 
 ```bash
 python main.py
 ```
 
-## Pruebas principales realizadas
-- Registro de producto y usuario.
-- Búsqueda rápida de producto por código.
-- Búsqueda rápida de usuario por identificación.
-- Consulta de ventas por usuario usando el índice auxiliar.
-- Venta válida con actualización del stock.
-- Verificación de coherencia de índices tras registrar, modificar y eliminar información.
-- Reinicio del sistema y reconstrucción de índices desde los archivos JSON.
+O desde la carpeta del proyecto:
 
-## Resultado esperado
-La aplicación sigue funcionando igual que en la Semana 11, pero con búsquedas y consultas más eficientes al usar estructuras auxiliares de tipo `dict` sin perder la claridad del diseño modular.
+```bash
+cd restaurante_app
+python main.py
+```
+
+## Credenciales de prueba
+Se utilizan usuarios simulados con contraseña en `datos/usuarios.json`:
+- `admin` / `admin123`
+- `mesero` / `mesero123`
+
+## Nota
+La aplicación base está diseñada para ser ampliada en semanas posteriores con más funcionalidades del restaurante, pero esta primera versión se mantiene enfocada en la organización modular y en el flujo correcto de login → panel principal.

@@ -1,4 +1,4 @@
-"""Paquete de servicios del sistema de restaurante."""
+"""Servicios del restaurante."""
 
 from .archivo_servicio import ArchivoServicio
 from .restaurante_servicio import RestauranteServicio

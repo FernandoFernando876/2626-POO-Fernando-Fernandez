@@ -4,13 +4,13 @@ from typing import Any
 
 
 class Usuario:
-    """Representa a un usuario del sistema con acceso simulado a la aplicación."""
+    """Representa un usuario del sistema con acceso simulado."""
 
     def __init__(self, usuario: str, nombre: str, correo: str, password: str = "") -> None:
-        self.usuario: str = self._validar_texto("usuario", usuario)
-        self.nombre: str = self._validar_texto("nombre", nombre)
-        self.correo: str = self._validar_texto("correo", correo)
-        self.password: str = str(password).strip() if password is not None else ""
+        self.usuario = self._validar_texto("usuario", usuario)
+        self.nombre = self._validar_texto("nombre", nombre)
+        self.correo = self._validar_texto("correo", correo)
+        self.password = str(password).strip()
 
     @property
     def identificacion(self) -> str:
@@ -41,17 +41,17 @@ class Usuario:
     @classmethod
     def from_dict(cls, datos: dict[str, Any]) -> "Usuario":
         if not isinstance(datos, dict):
-            raise KeyError("El registro de usuario no tiene el formato esperado.")
+            raise KeyError("El usuario no tiene un formato válido.")
 
         if "usuario" in datos:
             usuario = datos["usuario"]
         elif "identificacion" in datos:
             usuario = datos["identificacion"]
         else:
-            raise KeyError("Falta el nombre de usuario o identificación.")
+            raise KeyError("Falta la identificación del usuario.")
 
-        nombre = datos.get("nombre") or datos.get("nombre_completo") or usuario
-        correo = datos.get("correo") or f"{usuario}@restaurante.local"
+        nombre = datos.get("nombre", usuario)
+        correo = datos.get("correo", f"{usuario}@restaurante.local")
         password = datos.get("password", "")
 
         return cls(
@@ -60,4 +60,3 @@ class Usuario:
             correo=correo,
             password=password,
         )
-
