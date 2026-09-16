@@ -1,14 +1,26 @@
 [
   {
-    "usuario": "admin",
-    "nombre": "Administrador",
-    "correo": "admin@restaurante.test",
-    "password": "admin123"
-  },
-  {
     "usuario": "mesero",
     "nombre": "Mesero de turno",
     "correo": "mesero@restaurante.test",
     "password": "mesero123"
+  },
+  {
+    "usuario": "fer",
+    "nombre": "fercho",
+    "correo": "222222",
+    "password": "1222"
+  },
+  {
+    "usuario": "333",
+    "nombre": "22222",
+    "correo": "222222",
+    "password": "1222"
+  },
+  {
+    "usuario": "Jesus",
+    "nombre": "patito",
+    "correo": "22212133",
+    "password": "123456"
   }
 ]

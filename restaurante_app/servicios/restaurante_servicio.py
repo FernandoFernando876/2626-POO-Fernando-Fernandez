@@ -1,12 +1,14 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 try:
     from restaurante_app.modelos.producto import Producto
     from restaurante_app.modelos.usuario import Usuario
+    from restaurante_app.modelos.venta import Venta
     from restaurante_app.servicios.archivo_servicio import ArchivoServicio
 except ImportError:  # pragma: no cover
     from modelos.producto import Producto
     from modelos.usuario import Usuario
+    from modelos.venta import Venta
     from servicios.archivo_servicio import ArchivoServicio
 
 
@@ -15,6 +17,7 @@ class RestauranteServicio:
         self.archivo_servicio = archivo_servicio or ArchivoServicio()
         self.productos = self.archivo_servicio.cargar_productos()
         self.usuarios = self.archivo_servicio.cargar_usuarios()
+        self.ventas = self.archivo_servicio.cargar_ventas()
 
     def listar_productos(self) -> list[Producto]:
         return self.productos.copy()
@@ -28,6 +31,31 @@ class RestauranteServicio:
             if producto.codigo.lower() == codigo.lower():
                 return producto
         return None
+
+    # Ventas
+    def listar_ventas(self) -> list[Venta]:
+        return self.ventas.copy()
+
+    def registrar_venta(self, usuario_id: str, producto_codigo: str, cantidad: int) -> Venta:
+        usuario_id = usuario_id.strip()
+        producto_codigo = producto_codigo.strip()
+        if not usuario_id or not producto_codigo:
+            raise ValueError("Usuario y producto son requeridos para registrar una venta.")
+        usuario = self.obtener_usuario(usuario_id)
+        if usuario is None:
+            raise ValueError(f"No existe el usuario '{usuario_id}'.")
+        producto = self.obtener_producto(producto_codigo)
+        if producto is None:
+            raise ValueError(f"No existe el producto '{producto_codigo}'.")
+        # intentar vender (verifica stock internamente)
+        producto.vender(cantidad)
+        # persistir productos modificados (stock actualizado)
+        self.archivo_servicio.guardar_productos(self.productos)
+        # crear y registrar venta
+        venta = Venta(usuario_id=usuario_id, producto_codigo=producto_codigo, cantidad=cantidad)
+        self.ventas.append(venta)
+        self.archivo_servicio.guardar_ventas(self.ventas)
+        return venta
 
     def validar_acceso(self, usuario: str, contraseña: str) -> bool:
         usuario_normalizado = usuario.strip()

@@ -1,0 +1,14 @@
+[
+  {
+    "usuario": "admin",
+    "nombre": "Administrador",
+    "correo": "admin@restaurante.test",
+    "contrasena": "admin123"
+  },
+  {
+    "usuario": "mesero",
+    "nombre": "Mesero de turno",
+    "correo": "mesero@restaurante.test",
+    "contrasena": "mesero123"
+  }
+]

@@ -1,16 +1,16 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from typing import Any
 
 
 class Usuario:
-    """Representa a un usuario del sistema con acceso simulado a la aplicación."""
+    """Representa a un usuario del sistema."""
 
-    def __init__(self, usuario: str, nombre: str, correo: str, password: str = "") -> None:
+    def __init__(self, usuario: str, nombre: str, correo: str, clave: str = "") -> None:
         self.usuario: str = self._validar_texto("usuario", usuario)
         self.nombre: str = self._validar_texto("nombre", nombre)
         self.correo: str = self._validar_texto("correo", correo)
-        self.password: str = str(password).strip() if password is not None else ""
+        self.contrasena: str = str(clave).strip() if clave is not None else ""
 
     @property
     def identificacion(self) -> str:
@@ -24,7 +24,7 @@ class Usuario:
     def _validar_texto(nombre_campo: str, valor: Any) -> str:
         texto = str(valor).strip() if valor is not None else ""
         if not texto:
-            raise ValueError(f"El campo '{nombre_campo}' no puede estar vacío.")
+            raise ValueError(f"El campo '{nombre_campo}' no puede estar vacio.")
         return texto
 
     def mostrar_informacion(self) -> str:
@@ -35,7 +35,7 @@ class Usuario:
             "usuario": self.usuario,
             "nombre": self.nombre,
             "correo": self.correo,
-            "password": self.password,
+            "contrasena": self.contrasena,
         }
 
     @classmethod
@@ -48,15 +48,15 @@ class Usuario:
         elif "identificacion" in datos:
             usuario = datos["identificacion"]
         else:
-            raise KeyError("Falta el nombre de usuario o identificación.")
+            raise KeyError("Falta el nombre de usuario o identificacion.")
 
         nombre = datos.get("nombre") or datos.get("nombre_completo") or usuario
         correo = datos.get("correo") or f"{usuario}@restaurante.local"
-        password = datos.get("password", "")
+        clave = datos.get("contrasena", "")
 
         return cls(
             usuario=usuario,
             nombre=nombre,
             correo=correo,
-            password=password,
+            clave=clave,
         )

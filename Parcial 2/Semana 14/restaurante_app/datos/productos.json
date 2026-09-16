@@ -1,0 +1,16 @@
+[
+  {
+    "codigo": "P001",
+    "nombre": "Hamburguesa Clásica",
+    "categoria": "Comida",
+    "precio": 12.5,
+    "stock": 8
+  },
+  {
+    "codigo": "P002",
+    "nombre": "Jugo Natural",
+    "categoria": "Bebida",
+    "precio": 6.0,
+    "stock": 15
+  }
+]

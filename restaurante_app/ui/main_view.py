@@ -56,8 +56,10 @@ class MainView:
         # pestañas
         self.productos_tab = tk.Frame(self.notebook, bg="white")
         self.usuarios_tab = tk.Frame(self.notebook, bg="white")
+        self.ventas_tab = tk.Frame(self.notebook, bg="white")
         self.notebook.add(self.productos_tab, text="Productos")
         self.notebook.add(self.usuarios_tab, text="Usuarios")
+        self.notebook.add(self.ventas_tab, text="Ventas")
 
         # --- Panel de productos dentro de la pestaña ---
         # contenedor interior
@@ -177,11 +179,61 @@ class MainView:
         user_scroll.grid(row=1, column=1, sticky="ns", pady=(6,0))
         self.user_tree.configure(yscrollcommand=user_scroll.set)
 
+        # Ventas: formulario y lista
+        ventas_container = tk.Frame(self.ventas_tab, bg="white", bd=1, relief="solid")
+        ventas_container.pack(fill="both", expand=True, padx=4, pady=6)
+        ventas_container.grid_columnconfigure(0, weight=1)
+        ventas_container.grid_columnconfigure(1, weight=1)
+        ventas_container.grid_rowconfigure(0, weight=1)
+
+        # Formulario de ventas (izquierda)
+        venta_form = tk.Frame(ventas_container, bg="white", padx=12, pady=12)
+        venta_form.grid(row=0, column=0, sticky="nsew")
+        tk.Label(venta_form, text="Usuario (ID)", bg="white").grid(row=0, column=0, sticky="w")
+        self.venta_usuario_cb = ttk.Combobox(venta_form, values=[], width=30)
+        self.venta_usuario_cb.grid(row=1, column=0, sticky="w", pady=(2,8))
+        tk.Label(venta_form, text="Producto (Código)", bg="white").grid(row=2, column=0, sticky="w")
+        self.venta_producto_cb = ttk.Combobox(venta_form, values=[], width=30)
+        self.venta_producto_cb.grid(row=3, column=0, sticky="w", pady=(2,8))
+        tk.Label(venta_form, text="Cantidad", bg="white").grid(row=4, column=0, sticky="w")
+        self.venta_cantidad_var = tk.StringVar()
+        tk.Entry(venta_form, textvariable=self.venta_cantidad_var, width=10).grid(row=5, column=0, sticky="w", pady=(2,8))
+        venta_btns = tk.Frame(venta_form, bg="white")
+        venta_btns.grid(row=6, column=0, sticky="w", pady=(8,0))
+        tk.Button(venta_btns, text="Registrar Venta", command=self._registrar_venta, bg="#10b981", fg="white", width=14).grid(row=0, column=0, padx=(0,6))
+        tk.Button(venta_btns, text="Limpiar", command=self._limpiar_venta_form, width=12).grid(row=0, column=1)
+
+        # Lista de ventas (derecha)
+        ventas_list_frame = tk.Frame(ventas_container, bg="white", padx=12, pady=12)
+        ventas_list_frame.grid(row=0, column=1, sticky="nsew")
+        ventas_list_frame.grid_rowconfigure(0, weight=1)
+        ventas_list_frame.grid_columnconfigure(0, weight=1)
+        tk.Label(ventas_list_frame, text="Ventas", bg="white", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
+        vcols = ("usuario_id","producto_codigo","cantidad")
+        self.ventas_tree = ttk.Treeview(ventas_list_frame, columns=vcols, show="headings", height=12)
+        for col, title in (("usuario_id","Usuario"),("producto_codigo","Producto"),("cantidad","Cantidad")):
+            is_num = col=="cantidad"
+            self.ventas_tree.heading(col, text=title, command=lambda c=col, n=is_num: self._sort_tree(self.ventas_tree, c, n))
+            self.ventas_tree.column(col, width=120, anchor="w", stretch=True)
+        self.ventas_tree.grid(row=1, column=0, sticky="nsew", pady=(6,0))
+        vscroll = ttk.Scrollbar(ventas_list_frame, orient="vertical", command=self.ventas_tree.yview)
+        vscroll.grid(row=1, column=1, sticky="ns", pady=(6,0))
+        self.ventas_tree.configure(yscrollcommand=vscroll.set)
+
+        # bind
+        self.ventas_tree.bind('<<TreeviewSelect>>', lambda e: None)
 
         # Texto de información debajo
         self.info_text = tk.Text(self.frame, height=6, wrap="word")
         self.info_text.grid(row=3, column=0, sticky="ew", padx=20, pady=(12, 0))
         self.info_text.config(state="disabled")
+
+        # Inicializar vistas de ventas
+        try:
+            self._refresh_ventas_inputs()
+            self._refresh_ventas_tree()
+        except Exception:
+            pass
 
         # Inicializar listas y bindings
         self.product_codes: list[str] = []
@@ -301,6 +353,84 @@ class MainView:
             tree.move(item, '', index)
         # alternar para la próxima vez
         self._sort_dirs[key] = not reverse
+
+    def mostrar_pendiente(self) -> None:
+        # seleccionar pestaña Ventas y refrescar
+        try:
+            self.notebook.select(self.ventas_tab)
+        except Exception:
+            pass
+        self._refresh_ventas_inputs()
+        self._refresh_ventas_tree()
+
+    def _refresh_ventas_inputs(self) -> None:
+        # actualizar valores para comboboxes de ventas (usuarios y productos)
+        productos = self.restaurante_servicio.listar_productos()
+        self.product_codes = [p.codigo for p in productos]
+        try:
+            self.venta_producto_cb['values'] = self.product_codes
+        except Exception:
+            pass
+        usuarios = self.restaurante_servicio.listar_usuarios()
+        self.user_ids = [u.usuario for u in usuarios]
+        try:
+            self.venta_usuario_cb['values'] = self.user_ids
+        except Exception:
+            pass
+
+    def _refresh_ventas_tree(self) -> None:
+        ventas = self.restaurante_servicio.listar_ventas()
+        # limpiar
+        try:
+            children = list(self.ventas_tree.get_children())
+        except Exception:
+            children = []
+        for item in children:
+            try:
+                self.ventas_tree.delete(item)
+            except Exception:
+                pass
+        for idx, v in enumerate(ventas):
+            iid = f"venta_{idx}"
+            try:
+                self.ventas_tree.insert("", tk.END, iid=iid, values=(v.usuario_id, v.producto_codigo, str(v.cantidad)))
+            except Exception:
+                pass
+        lines = [v.mostrar_informacion() for v in ventas]
+        self._mostrar_info("Ventas registradas", lines)
+
+    def _registrar_venta(self) -> None:
+        usuario = self.venta_usuario_cb.get().strip()
+        producto = self.venta_producto_cb.get().strip()
+        cantidad = self.venta_cantidad_var.get().strip()
+        if not usuario or not producto or not cantidad:
+            self._mostrar_info("Error", ["Usuario, producto y cantidad son requeridos."])
+            return
+        try:
+            cantidad_val = int(cantidad)
+            self.restaurante_servicio.registrar_venta(usuario, producto, cantidad_val)
+        except Exception as exc:
+            self._mostrar_info("Error al registrar venta", [str(exc)])
+            return
+        # éxito
+        self._limpiar_venta_form()
+        self._refresh_ventas_tree()
+        # actualizar vista de productos porque el stock cambió
+        self.mostrar_productos()
+
+    def _limpiar_venta_form(self) -> None:
+        try:
+            self.venta_usuario_cb.set("")
+        except Exception:
+            pass
+        try:
+            self.venta_producto_cb.set("")
+        except Exception:
+            pass
+        try:
+            self.venta_cantidad_var.set("")
+        except Exception:
+            pass
 
     # Operaciones para usuarios
     def _registrar_usuario(self) -> None:
