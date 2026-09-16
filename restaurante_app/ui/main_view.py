@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import tkinter as tk
+from tkinter import ttk
 from typing import Callable
 
 
@@ -98,11 +99,15 @@ class MainView:
         self.list_frame.grid_columnconfigure(0, weight=1)
 
         tk.Label(self.list_frame, text="Productos", bg="white", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
-        self.listbox = tk.Listbox(self.list_frame, height=18)
-        self.listbox.grid(row=1, column=0, sticky="nsew", pady=(6, 0))
-        scrollbar = tk.Scrollbar(self.list_frame, orient="vertical", command=self.listbox.yview)
-        scrollbar.grid(row=1, column=1, sticky="ns", pady=(6, 0))
-        self.listbox.configure(yscrollcommand=scrollbar.set)
+        columns = ("codigo","nombre","categoria","precio","stock")
+        self.tree = ttk.Treeview(self.list_frame, columns=columns, show="headings", height=12)
+        for col, title in (("codigo","Código"),("nombre","Nombre"),("categoria","Categoría"),("precio","Precio"),("stock","Stock")):
+            self.tree.heading(col, text=title)
+            self.tree.column(col, width=100, anchor="w")
+        self.tree.grid(row=1, column=0, sticky="nsew", pady=(6,0))
+        scrollbar = ttk.Scrollbar(self.list_frame, orient="vertical", command=self.tree.yview)
+        scrollbar.grid(row=1, column=1, sticky="ns", pady=(6,0))
+        self.tree.configure(yscrollcommand=scrollbar.set)
 
         # Panel de usuarios (oculto inicialmente)
         self.user_panel = tk.Frame(display_frame, bg="white", padx=12, pady=12)
@@ -143,11 +148,15 @@ class MainView:
         self.user_list_frame.grid_columnconfigure(0, weight=1)
 
         tk.Label(self.user_list_frame, text="Usuarios", bg="white", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
-        self.user_listbox = tk.Listbox(self.user_list_frame, height=18)
-        self.user_listbox.grid(row=1, column=0, sticky="nsew", pady=(6, 0))
-        user_scroll = tk.Scrollbar(self.user_list_frame, orient="vertical", command=self.user_listbox.yview)
-        user_scroll.grid(row=1, column=1, sticky="ns", pady=(6, 0))
-        self.user_listbox.configure(yscrollcommand=user_scroll.set)
+        ucols = ("usuario","nombre","correo")
+        self.user_tree = ttk.Treeview(self.user_list_frame, columns=ucols, show="headings", height=12)
+        for col, title in (("usuario","Usuario"),("nombre","Nombre"),("correo","Correo")):
+            self.user_tree.heading(col, text=title)
+            self.user_tree.column(col, width=140, anchor="w")
+        self.user_tree.grid(row=1, column=0, sticky="nsew", pady=(6,0))
+        user_scroll = ttk.Scrollbar(self.user_list_frame, orient="vertical", command=self.user_tree.yview)
+        user_scroll.grid(row=1, column=1, sticky="ns", pady=(6,0))
+        self.user_tree.configure(yscrollcommand=user_scroll.set)
 
         # Texto de información debajo
         self.info_text = tk.Text(self.frame, height=6, wrap="word")
@@ -157,8 +166,8 @@ class MainView:
         # Inicializar listas y bindings
         self.product_codes: list[str] = []
         self.user_ids: list[str] = []
-        self.listbox.bind('<<ListboxSelect>>', self._on_product_select)
-        self.user_listbox.bind('<<ListboxSelect>>', self._on_user_select)
+        self.tree.bind('<<TreeviewSelect>>', self._on_product_select)
+        self.user_tree.bind('<<TreeviewSelect>>', self._on_user_select)
 
         # Mostrar inicialmente productos
         self.mostrar_productos()
@@ -185,12 +194,11 @@ class MainView:
 
         productos = self.restaurante_servicio.listar_productos()
         lines = [p.mostrar_informacion() for p in productos]
-        # Actualizar lista visual y mapeo de códigos
-        self.listbox.delete(0, tk.END)
-        self.product_codes = []
+        # Actualizar treeview y mapeo de códigos
+        for item in self.tree.get_children():
+            self.tree.delete(item)
         for p in productos:
-            self.listbox.insert(tk.END, p.mostrar_informacion())
-            self.product_codes.append(p.codigo)
+            self.tree.insert("", tk.END, iid=p.codigo, values=(p.codigo, p.nombre, p.categoria, f"{p.precio:.2f}", str(p.stock)))
         self._mostrar_info("Productos registrados", lines)
 
     def mostrar_usuarios(self) -> None:
@@ -201,30 +209,23 @@ class MainView:
 
         usuarios = self.restaurante_servicio.listar_usuarios()
         lines = [f"{usuario.usuario} - {usuario.nombre} - {usuario.correo}" for usuario in usuarios]
-        # Actualizar lista visual y mapeo de ids
-        self.user_listbox.delete(0, tk.END)
-        self.user_ids = []
+        # Actualizar user_tree
+        for item in self.user_tree.get_children():
+            self.user_tree.delete(item)
         for u in usuarios:
-            display = f"{u.usuario} | {u.nombre} | {u.correo}"
-            self.user_listbox.insert(tk.END, display)
-            self.user_ids.append(u.usuario)
+            self.user_tree.insert("", tk.END, iid=u.usuario, values=(u.usuario, u.nombre, u.correo))
         self._mostrar_info("Usuarios registrados", lines)
 
     def mostrar_pendiente(self) -> None:
         self._mostrar_info("Ventas", ["Funcionalidad pendiente para la siguiente etapa."])
 
     # Selección desde las listas
+    # Selección desde las treeviews
     def _on_product_select(self, event) -> None:
-        if not hasattr(self, 'product_codes'):
-            return
-        sel = event.widget.curselection()
+        sel = self.tree.selection()
         if not sel:
             return
-        idx = sel[0]
-        if idx < 0 or idx >= len(self.product_codes):
-            return
-        codigo = self.product_codes[idx]
-        # Cargar producto seleccionado
+        codigo = sel[0]
         producto = self.restaurante_servicio.obtener_producto(codigo)
         if producto:
             self.codigo_var.set(producto.codigo)
@@ -235,13 +236,10 @@ class MainView:
             self.form_message_var.set("")
 
     def _on_user_select(self, event) -> None:
-        sel = event.widget.curselection()
+        sel = self.user_tree.selection()
         if not sel:
             return
-        idx = sel[0]
-        if idx < 0 or idx >= len(self.user_ids):
-            return
-        usuario_id = self.user_ids[idx]
+        usuario_id = sel[0]
         u = self.restaurante_servicio.obtener_usuario(usuario_id)
         if u:
             self.u_usuario_var.set(u.usuario)
