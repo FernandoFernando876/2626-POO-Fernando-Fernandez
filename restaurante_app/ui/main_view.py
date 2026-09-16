@@ -187,7 +187,9 @@ class MainView:
         self.product_codes: list[str] = []
         self.user_ids: list[str] = []
         self.tree.bind('<<TreeviewSelect>>', self._on_product_select)
+        self.tree.bind('<Double-1>', self._on_product_double_click)
         self.user_tree.bind('<<TreeviewSelect>>', self._on_user_select)
+        self.user_tree.bind('<Double-1>', self._on_user_double_click)
 
         # Mostrar inicialmente productos
         self.mostrar_productos()
@@ -266,6 +268,13 @@ class MainView:
             self.u_correo_var.set(u.correo)
             self.u_password_var.set(u.password)
             self.user_message_var.set("")
+
+    def _on_product_double_click(self, event) -> None:
+        # misma acción que seleccionar, pero ejecutada en doble clic
+        self._on_product_select(event)
+
+    def _on_user_double_click(self, event) -> None:
+        self._on_user_select(event)
 
     def _sort_tree(self, tree: ttk.Treeview, col: str, numeric: bool = False) -> None:
         """Ordena los elementos del treeview por la columna indicada.
