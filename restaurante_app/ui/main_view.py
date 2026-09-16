@@ -101,13 +101,20 @@ class MainView:
         tk.Label(self.list_frame, text="Productos", bg="white", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
         columns = ("codigo","nombre","categoria","precio","stock")
         self.tree = ttk.Treeview(self.list_frame, columns=columns, show="headings", height=12)
+        # Crear encabezados con comando para ordenar
         for col, title in (("codigo","Código"),("nombre","Nombre"),("categoria","Categoría"),("precio","Precio"),("stock","Stock")):
-            self.tree.heading(col, text=title)
-            self.tree.column(col, width=100, anchor="w")
+            # precio y stock se ordenan numéricamente
+            is_numeric = col in ("precio","stock")
+            self.tree.heading(col, text=title, command=lambda c=col, n=is_numeric: self._sort_tree(self.tree, c, n))
+            # permitir ajuste de columnas
+            self.tree.column(col, width=100, anchor="w", stretch=True)
         self.tree.grid(row=1, column=0, sticky="nsew", pady=(6,0))
         scrollbar = ttk.Scrollbar(self.list_frame, orient="vertical", command=self.tree.yview)
         scrollbar.grid(row=1, column=1, sticky="ns", pady=(6,0))
         self.tree.configure(yscrollcommand=scrollbar.set)
+        # diccionario para recordar dirección de ordenamiento por árbol y columna
+        self._sort_dirs = {}
+
 
         # Panel de usuarios (oculto inicialmente)
         self.user_panel = tk.Frame(display_frame, bg="white", padx=12, pady=12)
@@ -151,12 +158,15 @@ class MainView:
         ucols = ("usuario","nombre","correo")
         self.user_tree = ttk.Treeview(self.user_list_frame, columns=ucols, show="headings", height=12)
         for col, title in (("usuario","Usuario"),("nombre","Nombre"),("correo","Correo")):
-            self.user_tree.heading(col, text=title)
-            self.user_tree.column(col, width=140, anchor="w")
+            self.user_tree.heading(col, text=title, command=lambda c=col: self._sort_tree(self.user_tree, c, False))
+            self.user_tree.column(col, width=140, anchor="w", stretch=True)
         self.user_tree.grid(row=1, column=0, sticky="nsew", pady=(6,0))
         user_scroll = ttk.Scrollbar(self.user_list_frame, orient="vertical", command=self.user_tree.yview)
         user_scroll.grid(row=1, column=1, sticky="ns", pady=(6,0))
         self.user_tree.configure(yscrollcommand=user_scroll.set)
+        # direcciones de orden para user_tree
+        self._user_sort_dirs = {}
+
 
         # Texto de información debajo
         self.info_text = tk.Text(self.frame, height=6, wrap="word")
@@ -247,6 +257,32 @@ class MainView:
             self.u_correo_var.set(u.correo)
             self.u_password_var.set(u.password)
             self.user_message_var.set("")
+
+    def _sort_tree(self, tree: ttk.Treeview, col: str, numeric: bool = False) -> None:
+        """Ordena los elementos del treeview por la columna indicada.
+        Alterna entre ascendente y descendente en cada click.
+        """
+        # clave para diccionario de direcciones
+        key = (id(tree), col)
+        reverse = self._sort_dirs.get(key, False)
+        items = list(tree.get_children(''))
+        def _get_val(item):
+            v = tree.set(item, col)
+            if numeric:
+                try:
+                    return float(v)
+                except Exception:
+                    return float('-inf')
+            return v.lower()
+        try:
+            items.sort(key=lambda it: _get_val(it), reverse=reverse)
+        except Exception:
+            items.sort(key=lambda it: tree.set(it, col), reverse=reverse)
+        # reinsertar en nuevo orden
+        for index, item in enumerate(items):
+            tree.move(item, '', index)
+        # alternar para la próxima vez
+        self._sort_dirs[key] = not reverse
 
     # Operaciones para usuarios
     def _registrar_usuario(self) -> None:
