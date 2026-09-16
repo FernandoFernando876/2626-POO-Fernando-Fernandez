@@ -49,15 +49,26 @@ class MainView:
         logout_btn = tk.Button(actions, text="Cerrar sesión", command=self._logout, width=18, bg="#dc2626", fg="white")
         logout_btn.grid(row=0, column=3, padx=(10, 0), sticky="e")
 
-        # Contenedor principal para interfaz de productos y visualización
-        display_frame = tk.Frame(self.frame, bg="white", bd=1, relief="solid")
-        display_frame.grid(row=2, column=0, sticky="nsew")
-        display_frame.grid_columnconfigure(0, weight=1)
-        display_frame.grid_columnconfigure(1, weight=1)
-        display_frame.grid_rowconfigure(0, weight=1)
+        # Contenedor principal: usar pestañas para Productos/Usuarios
+        self.notebook = ttk.Notebook(self.frame)
+        self.notebook.grid(row=2, column=0, sticky="nsew")
 
-        # --- Panel de productos (form + lista) ---
-        self.form_frame = tk.Frame(display_frame, bg="white", padx=12, pady=12)
+        # pestañas
+        self.productos_tab = tk.Frame(self.notebook, bg="white")
+        self.usuarios_tab = tk.Frame(self.notebook, bg="white")
+        self.notebook.add(self.productos_tab, text="Productos")
+        self.notebook.add(self.usuarios_tab, text="Usuarios")
+
+        # --- Panel de productos dentro de la pestaña ---
+        # contenedor interior
+        productos_container = tk.Frame(self.productos_tab, bg="white", bd=1, relief="solid")
+        productos_container.pack(fill="both", expand=True, padx=4, pady=6)
+        productos_container.grid_columnconfigure(0, weight=1)
+        productos_container.grid_columnconfigure(1, weight=1)
+        productos_container.grid_rowconfigure(0, weight=1)
+
+        # formulario productos (lado izquierdo)
+        self.form_frame = tk.Frame(productos_container, bg="white", padx=12, pady=12)
         self.form_frame.grid(row=0, column=0, sticky="nsew")
 
         tk.Label(self.form_frame, text="Código", bg="white").grid(row=0, column=0, sticky="w")
@@ -92,8 +103,8 @@ class MainView:
         tk.Button(buttons_frame, text="Eliminar", command=self._eliminar_producto, bg="#ef4444", fg="white", width=12).grid(row=0, column=3)
         tk.Button(self.form_frame, text="Limpiar", command=self._limpiar_form, width=12).grid(row=12, column=0, pady=(8, 0), sticky="w")
 
-        # Lista de productos (lado derecho)
-        self.list_frame = tk.Frame(display_frame, bg="white", padx=12, pady=12)
+        # lista productos (lado derecho)
+        self.list_frame = tk.Frame(productos_container, bg="white", padx=12, pady=12)
         self.list_frame.grid(row=0, column=1, sticky="nsew")
         self.list_frame.grid_rowconfigure(0, weight=1)
         self.list_frame.grid_columnconfigure(0, weight=1)
@@ -101,25 +112,26 @@ class MainView:
         tk.Label(self.list_frame, text="Productos", bg="white", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
         columns = ("codigo","nombre","categoria","precio","stock")
         self.tree = ttk.Treeview(self.list_frame, columns=columns, show="headings", height=12)
-        # Crear encabezados con comando para ordenar
         for col, title in (("codigo","Código"),("nombre","Nombre"),("categoria","Categoría"),("precio","Precio"),("stock","Stock")):
-            # precio y stock se ordenan numéricamente
             is_numeric = col in ("precio","stock")
             self.tree.heading(col, text=title, command=lambda c=col, n=is_numeric: self._sort_tree(self.tree, c, n))
-            # permitir ajuste de columnas
             self.tree.column(col, width=100, anchor="w", stretch=True)
         self.tree.grid(row=1, column=0, sticky="nsew", pady=(6,0))
         scrollbar = ttk.Scrollbar(self.list_frame, orient="vertical", command=self.tree.yview)
         scrollbar.grid(row=1, column=1, sticky="ns", pady=(6,0))
         self.tree.configure(yscrollcommand=scrollbar.set)
-        # diccionario para recordar dirección de ordenamiento por árbol y columna
         self._sort_dirs = {}
 
+        # --- Panel de usuarios en su propia pestaña ---
+        usuarios_container = tk.Frame(self.usuarios_tab, bg="white", bd=1, relief="solid")
+        usuarios_container.pack(fill="both", expand=True, padx=4, pady=6)
+        usuarios_container.grid_columnconfigure(0, weight=1)
+        usuarios_container.grid_columnconfigure(1, weight=1)
+        usuarios_container.grid_rowconfigure(0, weight=1)
 
-        # Panel de usuarios (oculto inicialmente)
-        self.user_panel = tk.Frame(display_frame, bg="white", padx=12, pady=12)
+        self.user_panel = tk.Frame(usuarios_container, bg="white", padx=12, pady=12)
+        self.user_panel.grid(row=0, column=0, sticky="nsew")
 
-        # Formulario de usuarios (lado izquierdo del panel de usuarios)
         tk.Label(self.user_panel, text="Usuario", bg="white").grid(row=0, column=0, sticky="w")
         self.u_usuario_var = tk.StringVar()
         tk.Entry(self.user_panel, textvariable=self.u_usuario_var, width=25).grid(row=1, column=0, sticky="w", pady=(2, 8))
@@ -148,8 +160,8 @@ class MainView:
         tk.Button(user_buttons, text="Eliminar", command=self._eliminar_usuario, bg="#ef4444", fg="white", width=12).grid(row=0, column=3)
         tk.Button(self.user_panel, text="Limpiar", command=self._limpiar_user_form, width=12).grid(row=10, column=0, pady=(8, 0), sticky="w")
 
-        # Lista de usuarios (lado derecho del panel de usuarios)
-        self.user_list_frame = tk.Frame(self.user_panel, bg="white", padx=12, pady=12)
+        # lista usuarios (lado derecho)
+        self.user_list_frame = tk.Frame(usuarios_container, bg="white", padx=12, pady=12)
         self.user_list_frame.grid(row=0, column=1, rowspan=11, sticky="nsew")
         self.user_list_frame.grid_rowconfigure(0, weight=1)
         self.user_list_frame.grid_columnconfigure(0, weight=1)
@@ -164,8 +176,6 @@ class MainView:
         user_scroll = ttk.Scrollbar(self.user_list_frame, orient="vertical", command=self.user_tree.yview)
         user_scroll.grid(row=1, column=1, sticky="ns", pady=(6,0))
         self.user_tree.configure(yscrollcommand=user_scroll.set)
-        # direcciones de orden para user_tree
-        self._user_sort_dirs = {}
 
 
         # Texto de información debajo
@@ -194,17 +204,15 @@ class MainView:
         self.info_text.config(state="disabled")
 
     def mostrar_productos(self) -> None:
-        # Mostrar panel de productos y ocultar panel de usuarios
+        # Seleccionar pestaña Productos
         try:
-            self.user_panel.grid_remove()
+            self.notebook.select(self.productos_tab)
         except Exception:
             pass
-        self.form_frame.grid(row=0, column=0, sticky="nsew")
-        self.list_frame.grid(row=0, column=1, sticky="nsew")
 
         productos = self.restaurante_servicio.listar_productos()
         lines = [p.mostrar_informacion() for p in productos]
-        # Actualizar treeview y mapeo de códigos
+        # Actualizar treeview
         for item in self.tree.get_children():
             self.tree.delete(item)
         for p in productos:
@@ -212,10 +220,11 @@ class MainView:
         self._mostrar_info("Productos registrados", lines)
 
     def mostrar_usuarios(self) -> None:
-        # Mostrar panel de usuarios y ocultar panel de productos
-        self.form_frame.grid_remove()
-        self.list_frame.grid_remove()
-        self.user_panel.grid(row=0, column=0, columnspan=2, sticky="nsew")
+        # Seleccionar pestaña Usuarios
+        try:
+            self.notebook.select(self.usuarios_tab)
+        except Exception:
+            pass
 
         usuarios = self.restaurante_servicio.listar_usuarios()
         lines = [f"{usuario.usuario} - {usuario.nombre} - {usuario.correo}" for usuario in usuarios]
