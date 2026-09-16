@@ -55,61 +55,112 @@ class MainView:
         display_frame.grid_columnconfigure(1, weight=1)
         display_frame.grid_rowconfigure(0, weight=1)
 
-        # Formulario de productos (lado izquierdo)
-        form_frame = tk.Frame(display_frame, bg="white", padx=12, pady=12)
-        form_frame.grid(row=0, column=0, sticky="nsew")
+        # --- Panel de productos (form + lista) ---
+        self.form_frame = tk.Frame(display_frame, bg="white", padx=12, pady=12)
+        self.form_frame.grid(row=0, column=0, sticky="nsew")
 
-        tk.Label(form_frame, text="Código", bg="white").grid(row=0, column=0, sticky="w")
+        tk.Label(self.form_frame, text="Código", bg="white").grid(row=0, column=0, sticky="w")
         self.codigo_var = tk.StringVar()
-        tk.Entry(form_frame, textvariable=self.codigo_var, width=25).grid(row=1, column=0, sticky="w", pady=(2, 8))
+        tk.Entry(self.form_frame, textvariable=self.codigo_var, width=25).grid(row=1, column=0, sticky="w", pady=(2, 8))
 
-        tk.Label(form_frame, text="Nombre", bg="white").grid(row=2, column=0, sticky="w")
+        tk.Label(self.form_frame, text="Nombre", bg="white").grid(row=2, column=0, sticky="w")
         self.nombre_var = tk.StringVar()
-        tk.Entry(form_frame, textvariable=self.nombre_var, width=40).grid(row=3, column=0, sticky="w", pady=(2, 8))
+        tk.Entry(self.form_frame, textvariable=self.nombre_var, width=40).grid(row=3, column=0, sticky="w", pady=(2, 8))
 
-        tk.Label(form_frame, text="Categoría", bg="white").grid(row=4, column=0, sticky="w")
+        tk.Label(self.form_frame, text="Categoría", bg="white").grid(row=4, column=0, sticky="w")
         self.categoria_var = tk.StringVar()
-        tk.Entry(form_frame, textvariable=self.categoria_var, width=30).grid(row=5, column=0, sticky="w", pady=(2, 8))
+        tk.Entry(self.form_frame, textvariable=self.categoria_var, width=30).grid(row=5, column=0, sticky="w", pady=(2, 8))
 
-        tk.Label(form_frame, text="Precio", bg="white").grid(row=6, column=0, sticky="w")
+        tk.Label(self.form_frame, text="Precio", bg="white").grid(row=6, column=0, sticky="w")
         self.precio_var = tk.StringVar()
-        tk.Entry(form_frame, textvariable=self.precio_var, width=20).grid(row=7, column=0, sticky="w", pady=(2, 8))
+        tk.Entry(self.form_frame, textvariable=self.precio_var, width=20).grid(row=7, column=0, sticky="w", pady=(2, 8))
 
-        tk.Label(form_frame, text="Stock", bg="white").grid(row=8, column=0, sticky="w")
+        tk.Label(self.form_frame, text="Stock", bg="white").grid(row=8, column=0, sticky="w")
         self.stock_var = tk.StringVar()
-        tk.Entry(form_frame, textvariable=self.stock_var, width=10).grid(row=9, column=0, sticky="w", pady=(2, 8))
+        tk.Entry(self.form_frame, textvariable=self.stock_var, width=10).grid(row=9, column=0, sticky="w", pady=(2, 8))
 
         self.form_message_var = tk.StringVar(value="")
-        tk.Label(form_frame, textvariable=self.form_message_var, fg="#b91c1c", bg="white").grid(row=10, column=0, sticky="w", pady=(4, 8))
+        tk.Label(self.form_frame, textvariable=self.form_message_var, fg="#b91c1c", bg="white").grid(row=10, column=0, sticky="w", pady=(4, 8))
 
-        buttons_frame = tk.Frame(form_frame, bg="white")
+        buttons_frame = tk.Frame(self.form_frame, bg="white")
         buttons_frame.grid(row=11, column=0, sticky="w", pady=(8, 0))
 
         tk.Button(buttons_frame, text="Registrar", command=self._registrar_producto, bg="#10b981", fg="white", width=12).grid(row=0, column=0, padx=(0, 6))
         tk.Button(buttons_frame, text="Cargar", command=self._cargar_producto, width=12).grid(row=0, column=1, padx=(0, 6))
         tk.Button(buttons_frame, text="Actualizar", command=self._actualizar_producto, width=12).grid(row=0, column=2, padx=(0, 6))
         tk.Button(buttons_frame, text="Eliminar", command=self._eliminar_producto, bg="#ef4444", fg="white", width=12).grid(row=0, column=3)
-        tk.Button(form_frame, text="Limpiar", command=self._limpiar_form, width=12).grid(row=12, column=0, pady=(8, 0), sticky="w")
+        tk.Button(self.form_frame, text="Limpiar", command=self._limpiar_form, width=12).grid(row=12, column=0, pady=(8, 0), sticky="w")
 
         # Lista de productos (lado derecho)
-        list_frame = tk.Frame(display_frame, bg="white", padx=12, pady=12)
-        list_frame.grid(row=0, column=1, sticky="nsew")
-        list_frame.grid_rowconfigure(0, weight=1)
-        list_frame.grid_columnconfigure(0, weight=1)
+        self.list_frame = tk.Frame(display_frame, bg="white", padx=12, pady=12)
+        self.list_frame.grid(row=0, column=1, sticky="nsew")
+        self.list_frame.grid_rowconfigure(0, weight=1)
+        self.list_frame.grid_columnconfigure(0, weight=1)
 
-        tk.Label(list_frame, text="Productos", bg="white", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
-        self.listbox = tk.Listbox(list_frame, height=18)
+        tk.Label(self.list_frame, text="Productos", bg="white", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
+        self.listbox = tk.Listbox(self.list_frame, height=18)
         self.listbox.grid(row=1, column=0, sticky="nsew", pady=(6, 0))
-        scrollbar = tk.Scrollbar(list_frame, orient="vertical", command=self.listbox.yview)
+        scrollbar = tk.Scrollbar(self.list_frame, orient="vertical", command=self.listbox.yview)
         scrollbar.grid(row=1, column=1, sticky="ns", pady=(6, 0))
         self.listbox.configure(yscrollcommand=scrollbar.set)
+
+        # Panel de usuarios (oculto inicialmente)
+        self.user_panel = tk.Frame(display_frame, bg="white", padx=12, pady=12)
+
+        # Formulario de usuarios (lado izquierdo del panel de usuarios)
+        tk.Label(self.user_panel, text="Usuario", bg="white").grid(row=0, column=0, sticky="w")
+        self.u_usuario_var = tk.StringVar()
+        tk.Entry(self.user_panel, textvariable=self.u_usuario_var, width=25).grid(row=1, column=0, sticky="w", pady=(2, 8))
+
+        tk.Label(self.user_panel, text="Nombre", bg="white").grid(row=2, column=0, sticky="w")
+        self.u_nombre_var = tk.StringVar()
+        tk.Entry(self.user_panel, textvariable=self.u_nombre_var, width=40).grid(row=3, column=0, sticky="w", pady=(2, 8))
+
+        tk.Label(self.user_panel, text="Correo", bg="white").grid(row=4, column=0, sticky="w")
+        self.u_correo_var = tk.StringVar()
+        tk.Entry(self.user_panel, textvariable=self.u_correo_var, width=40).grid(row=5, column=0, sticky="w", pady=(2, 8))
+
+        tk.Label(self.user_panel, text="Contraseña", bg="white").grid(row=6, column=0, sticky="w")
+        self.u_password_var = tk.StringVar()
+        tk.Entry(self.user_panel, textvariable=self.u_password_var, show="*", width=30).grid(row=7, column=0, sticky="w", pady=(2, 8))
+
+        self.user_message_var = tk.StringVar(value="")
+        tk.Label(self.user_panel, textvariable=self.user_message_var, fg="#b91c1c", bg="white").grid(row=8, column=0, sticky="w", pady=(4, 8))
+
+        user_buttons = tk.Frame(self.user_panel, bg="white")
+        user_buttons.grid(row=9, column=0, sticky="w", pady=(8, 0))
+
+        tk.Button(user_buttons, text="Registrar", command=self._registrar_usuario, bg="#10b981", fg="white", width=12).grid(row=0, column=0, padx=(0, 6))
+        tk.Button(user_buttons, text="Cargar", command=self._cargar_usuario, width=12).grid(row=0, column=1, padx=(0, 6))
+        tk.Button(user_buttons, text="Actualizar", command=self._actualizar_usuario, width=12).grid(row=0, column=2, padx=(0, 6))
+        tk.Button(user_buttons, text="Eliminar", command=self._eliminar_usuario, bg="#ef4444", fg="white", width=12).grid(row=0, column=3)
+        tk.Button(self.user_panel, text="Limpiar", command=self._limpiar_user_form, width=12).grid(row=10, column=0, pady=(8, 0), sticky="w")
+
+        # Lista de usuarios (lado derecho del panel de usuarios)
+        self.user_list_frame = tk.Frame(self.user_panel, bg="white", padx=12, pady=12)
+        self.user_list_frame.grid(row=0, column=1, rowspan=11, sticky="nsew")
+        self.user_list_frame.grid_rowconfigure(0, weight=1)
+        self.user_list_frame.grid_columnconfigure(0, weight=1)
+
+        tk.Label(self.user_list_frame, text="Usuarios", bg="white", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
+        self.user_listbox = tk.Listbox(self.user_list_frame, height=18)
+        self.user_listbox.grid(row=1, column=0, sticky="nsew", pady=(6, 0))
+        user_scroll = tk.Scrollbar(self.user_list_frame, orient="vertical", command=self.user_listbox.yview)
+        user_scroll.grid(row=1, column=1, sticky="ns", pady=(6, 0))
+        self.user_listbox.configure(yscrollcommand=user_scroll.set)
 
         # Texto de información debajo
         self.info_text = tk.Text(self.frame, height=6, wrap="word")
         self.info_text.grid(row=3, column=0, sticky="ew", padx=20, pady=(12, 0))
         self.info_text.config(state="disabled")
 
-        # Inicializar lista
+        # Inicializar listas y bindings
+        self.product_codes: list[str] = []
+        self.user_ids: list[str] = []
+        self.listbox.bind('<<ListboxSelect>>', self._on_product_select)
+        self.user_listbox.bind('<<ListboxSelect>>', self._on_user_select)
+
+        # Mostrar inicialmente productos
         self.mostrar_productos()
 
     def _mostrar_info(self, titulo: str, elementos: list[str]) -> None:
@@ -124,21 +175,143 @@ class MainView:
         self.info_text.config(state="disabled")
 
     def mostrar_productos(self) -> None:
+        # Mostrar panel de productos y ocultar panel de usuarios
+        try:
+            self.user_panel.grid_remove()
+        except Exception:
+            pass
+        self.form_frame.grid(row=0, column=0, sticky="nsew")
+        self.list_frame.grid(row=0, column=1, sticky="nsew")
+
         productos = self.restaurante_servicio.listar_productos()
         lines = [p.mostrar_informacion() for p in productos]
-        # Actualizar lista visual
+        # Actualizar lista visual y mapeo de códigos
         self.listbox.delete(0, tk.END)
+        self.product_codes = []
         for p in productos:
             self.listbox.insert(tk.END, p.mostrar_informacion())
+            self.product_codes.append(p.codigo)
         self._mostrar_info("Productos registrados", lines)
 
     def mostrar_usuarios(self) -> None:
+        # Mostrar panel de usuarios y ocultar panel de productos
+        self.form_frame.grid_remove()
+        self.list_frame.grid_remove()
+        self.user_panel.grid(row=0, column=0, columnspan=2, sticky="nsew")
+
         usuarios = self.restaurante_servicio.listar_usuarios()
         lines = [f"{usuario.usuario} - {usuario.nombre} - {usuario.correo}" for usuario in usuarios]
+        # Actualizar lista visual y mapeo de ids
+        self.user_listbox.delete(0, tk.END)
+        self.user_ids = []
+        for u in usuarios:
+            display = f"{u.usuario} | {u.nombre} | {u.correo}"
+            self.user_listbox.insert(tk.END, display)
+            self.user_ids.append(u.usuario)
         self._mostrar_info("Usuarios registrados", lines)
 
     def mostrar_pendiente(self) -> None:
         self._mostrar_info("Ventas", ["Funcionalidad pendiente para la siguiente etapa."])
+
+    # Selección desde las listas
+    def _on_product_select(self, event) -> None:
+        if not hasattr(self, 'product_codes'):
+            return
+        sel = event.widget.curselection()
+        if not sel:
+            return
+        idx = sel[0]
+        if idx < 0 or idx >= len(self.product_codes):
+            return
+        codigo = self.product_codes[idx]
+        # Cargar producto seleccionado
+        producto = self.restaurante_servicio.obtener_producto(codigo)
+        if producto:
+            self.codigo_var.set(producto.codigo)
+            self.nombre_var.set(producto.nombre)
+            self.categoria_var.set(producto.categoria)
+            self.precio_var.set(str(producto.precio))
+            self.stock_var.set(str(producto.stock))
+            self.form_message_var.set("")
+
+    def _on_user_select(self, event) -> None:
+        sel = event.widget.curselection()
+        if not sel:
+            return
+        idx = sel[0]
+        if idx < 0 or idx >= len(self.user_ids):
+            return
+        usuario_id = self.user_ids[idx]
+        u = self.restaurante_servicio.obtener_usuario(usuario_id)
+        if u:
+            self.u_usuario_var.set(u.usuario)
+            self.u_nombre_var.set(u.nombre)
+            self.u_correo_var.set(u.correo)
+            self.u_password_var.set(u.password)
+            self.user_message_var.set("")
+
+    # Operaciones para usuarios
+    def _registrar_usuario(self) -> None:
+        usuario = self.u_usuario_var.get().strip()
+        nombre = self.u_nombre_var.get().strip()
+        correo = self.u_correo_var.get().strip()
+        password = self.u_password_var.get().strip()
+        try:
+            self.restaurante_servicio.registrar_usuario(usuario, nombre, correo, password)
+        except Exception as exc:
+            self.user_message_var.set(str(exc))
+            return
+        self.user_message_var.set("")
+        self._limpiar_user_form()
+        self.mostrar_usuarios()
+
+    def _cargar_usuario(self) -> None:
+        usuario = self.u_usuario_var.get().strip()
+        if not usuario:
+            self.user_message_var.set("Ingresa el identificador de usuario a cargar.")
+            return
+        u = self.restaurante_servicio.obtener_usuario(usuario)
+        if u is None:
+            self.user_message_var.set(f"No existe usuario con id {usuario}.")
+            return
+        self.u_nombre_var.set(u.nombre)
+        self.u_correo_var.set(u.correo)
+        self.u_password_var.set(u.password)
+        self.user_message_var.set("")
+
+    def _actualizar_usuario(self) -> None:
+        usuario = self.u_usuario_var.get().strip()
+        nombre = self.u_nombre_var.get().strip()
+        correo = self.u_correo_var.get().strip()
+        password = self.u_password_var.get().strip()
+        try:
+            self.restaurante_servicio.actualizar_usuario(usuario, nombre, correo, password)
+        except Exception as exc:
+            self.user_message_var.set(str(exc))
+            return
+        self.user_message_var.set("")
+        self._limpiar_user_form()
+        self.mostrar_usuarios()
+
+    def _eliminar_usuario(self) -> None:
+        usuario = self.u_usuario_var.get().strip()
+        if not usuario:
+            self.user_message_var.set("Ingresa el identificador del usuario a eliminar.")
+            return
+        ok = self.restaurante_servicio.eliminar_usuario(usuario)
+        if not ok:
+            self.user_message_var.set(f"No existe usuario con id {usuario}.")
+            return
+        self.user_message_var.set("")
+        self._limpiar_user_form()
+        self.mostrar_usuarios()
+
+    def _limpiar_user_form(self) -> None:
+        self.u_usuario_var.set("")
+        self.u_nombre_var.set("")
+        self.u_correo_var.set("")
+        self.u_password_var.set("")
+        self.user_message_var.set("")
 
     def _registrar_producto(self) -> None:
         codigo = self.codigo_var.get().strip()

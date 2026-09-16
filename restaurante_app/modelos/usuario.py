@@ -60,4 +60,3 @@ class Usuario:
             correo=correo,
             password=password,
         )
-

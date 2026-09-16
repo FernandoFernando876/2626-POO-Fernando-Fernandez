@@ -76,5 +76,41 @@ class RestauranteServicio:
         self.archivo_servicio.guardar_productos(self.productos)
         return True
 
+    # Operaciones de usuarios: obtener, registrar, actualizar, eliminar
+    def obtener_usuario(self, usuario: str) -> Usuario | None:
+        usuario = usuario.strip()
+        for u in self.usuarios:
+            if u.usuario.lower() == usuario.lower():
+                return u
+        return None
+
+    def registrar_usuario(self, usuario: str, nombre: str, correo: str, password: str = "") -> Usuario:
+        if self.obtener_usuario(usuario) is not None:
+            raise ValueError(f"Ya existe un usuario con identificador '{usuario}'.")
+        nuevo = Usuario(usuario=usuario, nombre=nombre, correo=correo, password=password)
+        self.usuarios.append(nuevo)
+        self.archivo_servicio.guardar_usuarios(self.usuarios)
+        return nuevo
+
+    def actualizar_usuario(self, usuario: str, nombre: str, correo: str, password: str = "") -> Usuario:
+        actual = self.obtener_usuario(usuario)
+        if actual is None:
+            raise ValueError(f"No existe un usuario con identificador '{usuario}'.")
+        actualizado = Usuario(usuario=usuario, nombre=nombre, correo=correo, password=password)
+        for idx, u in enumerate(self.usuarios):
+            if u.usuario.lower() == usuario.lower():
+                self.usuarios[idx] = actualizado
+                break
+        self.archivo_servicio.guardar_usuarios(self.usuarios)
+        return actualizado
+
+    def eliminar_usuario(self, usuario: str) -> bool:
+        actual = self.obtener_usuario(usuario)
+        if actual is None:
+            return False
+        self.usuarios = [u for u in self.usuarios if u.usuario.lower() != usuario.lower()]
+        self.archivo_servicio.guardar_usuarios(self.usuarios)
+        return True
+
 
 Restaurante = RestauranteServicio
