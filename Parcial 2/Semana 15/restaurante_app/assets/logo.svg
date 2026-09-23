@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" role="img" aria-label="Restaurante App">
+  <rect width="240" height="80" rx="16" fill="#1f2937"/>
+  <circle cx="40" cy="40" r="22" fill="#f59e0b"/>
+  <path d="M31 26v28M40 26v28M49 26v28M29 35h22" stroke="#fff" stroke-width="4"/>
+  <text x="76" y="48" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fff">Restaurante</text>
+</svg>

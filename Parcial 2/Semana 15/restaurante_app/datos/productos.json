@@ -1,0 +1,23 @@
+[
+  {
+    "codigo": "p1",
+    "nombre": "Hamburguesa artesanal",
+    "categoria": "Plato fuerte",
+    "precio": 8.5,
+    "stock": 20
+  },
+  {
+    "codigo": "p2",
+    "nombre": "Jugo natural",
+    "categoria": "Bebida",
+    "precio": 3.0,
+    "stock": 15
+  },
+  {
+    "codigo": "p3",
+    "nombre": "Ensalada fresca",
+    "categoria": "Entrada",
+    "precio": 5.25,
+    "stock": 15
+  }
+]

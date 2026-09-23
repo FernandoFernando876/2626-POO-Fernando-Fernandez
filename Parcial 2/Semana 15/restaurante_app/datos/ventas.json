@@ -1,0 +1,14 @@
+[
+  {
+    "usuario_id": "fer",
+    "producto_codigo": "p2",
+    "cantidad": 10,
+    "fecha": "2026-09-22 21:40:04"
+  },
+  {
+    "usuario_id": "fer",
+    "producto_codigo": "p2",
+    "cantidad": 5,
+    "fecha": "2026-09-22 21:43:35"
+  }
+]
