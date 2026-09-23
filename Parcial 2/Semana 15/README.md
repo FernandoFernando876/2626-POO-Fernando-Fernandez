@@ -14,7 +14,13 @@ tabla y el mensaje visual. El servicio descuenta el stock y utiliza
 `ArchivoServicio` para persistir la venta en `datos/ventas.json`.
 
 Cada venta conserva usuario, producto, cantidad y fecha. Al reiniciar la
-aplicación, las ventas se recuperan desde el JSON.
+aplicación, las ventas se recuperan desde el JSON. También se conserva el
+precio unitario y el total calculado automáticamente.
+
+La ventana de login muestra las credenciales del administrador para facilitar
+el acceso durante la demostración. En la pestaña Ventas se presentan los
+detalles del cliente y del producto seleccionado, junto con el total
+actualizado a partir de `cantidad * precio unitario`.
 
 ## Estructura
 

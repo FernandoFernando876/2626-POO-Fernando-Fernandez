@@ -209,14 +209,57 @@ class MainView:
         tk.Label(venta_form, text="Usuario (ID)", bg="white").grid(row=0, column=0, sticky="w")
         self.venta_usuario_cb = ttk.Combobox(venta_form, values=[], width=30)
         self.venta_usuario_cb.grid(row=1, column=0, sticky="w", pady=(2,8))
-        tk.Label(venta_form, text="Producto (Código)", bg="white").grid(row=2, column=0, sticky="w")
+        self.venta_usuario_var = tk.StringVar()
+        self.venta_usuario_cb.configure(textvariable=self.venta_usuario_var)
+        self.venta_usuario_var.trace_add("write", self._actualizar_detalles_venta)
+
+        self.venta_cliente_info_var = tk.StringVar(value="Selecciona un usuario para ver sus datos.")
+        tk.Label(
+            venta_form,
+            textvariable=self.venta_cliente_info_var,
+            bg="#eff6ff",
+            fg="#1e3a8a",
+            justify="left",
+            anchor="w",
+            width=42,
+            padx=6,
+            pady=5,
+        ).grid(row=2, column=0, sticky="ew", pady=(0, 8))
+
+        tk.Label(venta_form, text="Producto (Código)", bg="white").grid(row=3, column=0, sticky="w")
         self.venta_producto_cb = ttk.Combobox(venta_form, values=[], width=30)
-        self.venta_producto_cb.grid(row=3, column=0, sticky="w", pady=(2,8))
-        tk.Label(venta_form, text="Cantidad", bg="white").grid(row=4, column=0, sticky="w")
+        self.venta_producto_cb.grid(row=4, column=0, sticky="w", pady=(2,8))
+        self.venta_producto_var = tk.StringVar()
+        self.venta_producto_cb.configure(textvariable=self.venta_producto_var)
+        self.venta_producto_var.trace_add("write", self._actualizar_detalles_venta)
+
+        self.venta_producto_info_var = tk.StringVar(value="Selecciona un producto para ver sus datos.")
+        tk.Label(
+            venta_form,
+            textvariable=self.venta_producto_info_var,
+            bg="#f0fdf4",
+            fg="#166534",
+            justify="left",
+            anchor="w",
+            width=42,
+            padx=6,
+            pady=5,
+        ).grid(row=5, column=0, sticky="ew", pady=(0, 8))
+
+        tk.Label(venta_form, text="Cantidad", bg="white").grid(row=6, column=0, sticky="w")
         self.venta_cantidad_var = tk.StringVar()
-        tk.Entry(venta_form, textvariable=self.venta_cantidad_var, width=10).grid(row=5, column=0, sticky="w", pady=(2,8))
+        tk.Entry(venta_form, textvariable=self.venta_cantidad_var, width=10).grid(row=7, column=0, sticky="w", pady=(2,8))
+        self.venta_cantidad_var.trace_add("write", self._actualizar_total_venta)
+        self.venta_total_var = tk.StringVar(value="Total: $0.00")
+        tk.Label(
+            venta_form,
+            textvariable=self.venta_total_var,
+            bg="white",
+            fg="#111827",
+            font=("Arial", 11, "bold"),
+        ).grid(row=8, column=0, sticky="w", pady=(0, 8))
         venta_btns = tk.Frame(venta_form, bg="white")
-        venta_btns.grid(row=6, column=0, sticky="w", pady=(8,0))
+        venta_btns.grid(row=9, column=0, sticky="w", pady=(8,0))
         tk.Button(venta_btns, text="Registrar Venta", command=self._registrar_venta, bg="#10b981", fg="white", width=14).grid(row=0, column=0, padx=(0,6))
         tk.Button(venta_btns, text="Limpiar", command=self._limpiar_venta_form, width=12).grid(row=0, column=1)
 
@@ -226,10 +269,13 @@ class MainView:
         ventas_list_frame.grid_rowconfigure(0, weight=1)
         ventas_list_frame.grid_columnconfigure(0, weight=1)
         tk.Label(ventas_list_frame, text="Ventas", bg="white", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
-        vcols = ("fecha", "usuario_id", "producto_codigo", "cantidad")
+        vcols = ("fecha", "usuario_id", "producto_codigo", "cantidad", "precio_unitario", "total")
         self.ventas_tree = ttk.Treeview(ventas_list_frame, columns=vcols, show="headings", height=12)
-        for col, title in (("fecha", "Fecha"), ("usuario_id","Usuario"),("producto_codigo","Producto"),("cantidad","Cantidad")):
-            is_num = col=="cantidad"
+        for col, title in (
+            ("fecha", "Fecha"), ("usuario_id","Usuario"), ("producto_codigo","Producto"),
+            ("cantidad","Cantidad"), ("precio_unitario", "Precio unitario"), ("total", "Total"),
+        ):
+            is_num = col in ("cantidad", "precio_unitario", "total")
             self.ventas_tree.heading(col, text=title, command=lambda c=col, n=is_num: self._sort_tree(self.ventas_tree, c, n))
             self.ventas_tree.column(col, width=120, anchor="w", stretch=True)
         self.ventas_tree.grid(row=1, column=0, sticky="nsew", pady=(6,0))
@@ -365,7 +411,14 @@ class MainView:
             try:
                 self.ventas_tree.insert(
                     "", tk.END, iid=iid,
-                    values=(v.fecha, v.usuario_id, v.producto_codigo, str(v.cantidad)),
+                    values=(
+                        v.fecha,
+                        v.usuario_id,
+                        v.producto_codigo,
+                        str(v.cantidad),
+                        f"${v.precio_unitario:.2f}",
+                        f"${v.total:.2f}",
+                    ),
                 )
             except Exception:
                 pass
@@ -373,8 +426,8 @@ class MainView:
         self._mostrar_info("Ventas registradas", lines)
 
     def _registrar_venta(self) -> None:
-        usuario = self.venta_usuario_cb.get().strip()
-        producto = self.venta_producto_cb.get().strip()
+        usuario = self.venta_usuario_var.get().strip()
+        producto = self.venta_producto_var.get().strip()
         cantidad = self.venta_cantidad_var.get().strip()
         if not usuario or not producto or not cantidad:
             self._mostrar_info("Error", ["Usuario, producto y cantidad son requeridos."])
@@ -393,18 +446,40 @@ class MainView:
         self._mostrar_info("Venta registrada", ["La venta se registró correctamente."])
 
     def _limpiar_venta_form(self) -> None:
+        self.venta_usuario_var.set("")
+        self.venta_producto_var.set("")
+        self.venta_cantidad_var.set("")
+        self.venta_cliente_info_var.set("Selecciona un usuario para ver sus datos.")
+        self.venta_producto_info_var.set("Selecciona un producto para ver sus datos.")
+        self.venta_total_var.set("Total: $0.00")
+
+    def _actualizar_detalles_venta(self, *_args) -> None:
+        usuario = self.restaurante_servicio.obtener_usuario(self.venta_usuario_var.get())
+        if usuario is None:
+            self.venta_cliente_info_var.set("Selecciona un usuario para ver sus datos.")
+        else:
+            self.venta_cliente_info_var.set(
+                f"Cliente: {usuario.nombre}\nUsuario: {usuario.usuario} | Correo: {usuario.correo}"
+            )
+
+        producto = self.restaurante_servicio.obtener_producto(self.venta_producto_var.get())
+        if producto is None:
+            self.venta_producto_info_var.set("Selecciona un producto para ver sus datos.")
+        else:
+            self.venta_producto_info_var.set(
+                f"Producto: {producto.nombre} ({producto.codigo})\n"
+                f"Categoría: {producto.categoria} | Precio: ${producto.precio:.2f} | Stock: {producto.stock}"
+            )
+        self._actualizar_total_venta()
+
+    def _actualizar_total_venta(self, *_args) -> None:
+        producto = self.restaurante_servicio.obtener_producto(self.venta_producto_var.get())
         try:
-            self.venta_usuario_cb.set("")
-        except Exception:
-            pass
-        try:
-            self.venta_producto_cb.set("")
-        except Exception:
-            pass
-        try:
-            self.venta_cantidad_var.set("")
-        except Exception:
-            pass
+            cantidad = int(self.venta_cantidad_var.get())
+        except (TypeError, ValueError):
+            cantidad = 0
+        total = producto.precio * cantidad if producto is not None and cantidad > 0 else 0
+        self.venta_total_var.set(f"Total: ${total:.2f}")
 
     # Operaciones para usuarios
     def _registrar_usuario(self) -> None:

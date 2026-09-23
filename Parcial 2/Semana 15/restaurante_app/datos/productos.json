@@ -11,13 +11,13 @@
     "nombre": "Jugo natural",
     "categoria": "Bebida",
     "precio": 3.0,
-    "stock": 15
+    "stock": 20
   },
   {
     "codigo": "p3",
     "nombre": "Ensalada fresca",
     "categoria": "Entrada",
     "precio": 5.25,
-    "stock": 15
+    "stock": 100
   }
 ]

@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 try:
-    from restaurante_app.modelos.producto import Producto
-    from restaurante_app.modelos.usuario import Usuario
-    from restaurante_app.modelos.venta import Venta
-    from restaurante_app.servicios.archivo_servicio import ArchivoServicio
-except ImportError:  # pragma: no cover
     from modelos.producto import Producto
     from modelos.usuario import Usuario
     from modelos.venta import Venta
     from servicios.archivo_servicio import ArchivoServicio
+except ImportError:  # pragma: no cover
+    from restaurante_app.modelos.producto import Producto
+    from restaurante_app.modelos.usuario import Usuario
+    from restaurante_app.modelos.venta import Venta
+    from restaurante_app.servicios.archivo_servicio import ArchivoServicio
 
 
 class RestauranteServicio:
@@ -58,7 +58,12 @@ class RestauranteServicio:
             raise ValueError(f"No existe el producto '{producto_codigo}'.")
 
         producto.vender(cantidad)
-        venta = Venta(usuario_id=usuario_id, producto_codigo=producto.codigo, cantidad=cantidad)
+        venta = Venta(
+            usuario_id=usuario_id,
+            producto_codigo=producto.codigo,
+            cantidad=cantidad,
+            precio_unitario=producto.precio,
+        )
         self.archivo_servicio.guardar_productos(self.productos)
         self.ventas.append(venta)
         self.archivo_servicio.guardar_ventas(self.ventas)

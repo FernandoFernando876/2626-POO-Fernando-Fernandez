@@ -70,14 +70,14 @@ class LoginView:
         )
         login_button.grid(row=7, column=0, sticky="ew")
 
-        footer = tk.Label(
+        admin_label = tk.Label(
             card,
-            text="Usuarios de prueba: admin / admin123",
+            text="Credenciales de administrador: Admin / Admin123",
             bg="white",
-            fg="#6b7280",
-            font=("Arial", 9),
+            fg="#1d4ed8",
+            font=("Arial", 9, "bold"),
         )
-        footer.grid(row=8, column=0, sticky="ew", pady=(14, 0))
+        admin_label.grid(row=8, column=0, sticky="ew", pady=(14, 0))
 
         self.frame.columnconfigure(0, weight=1)
         self.frame.rowconfigure(0, weight=1)
