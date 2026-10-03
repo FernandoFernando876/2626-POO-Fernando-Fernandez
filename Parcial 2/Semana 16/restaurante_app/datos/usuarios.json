@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "usuario": "mesero",
+    "nombre": "Mesero de turno",
+    "correo": "mesero@restaurante.test",
+    "password": "mesero123",
+    "rol": "Empleado"
+  },
+  {
+    "id": 2,
+    "usuario": "fer",
+    "nombre": "fercho",
+    "correo": "222222",
+    "password": "1222",
+    "rol": "Cliente"
+  },
+  {
+    "id": 3,
+    "usuario": "333",
+    "nombre": "22222",
+    "correo": "222222",
+    "password": "1222",
+    "rol": "Cliente"
+  },
+  {
+    "id": 4,
+    "usuario": "Jesus",
+    "nombre": "patito",
+    "correo": "22212133",
+    "password": "123456",
+    "rol": "Cliente"
+  },
+  {
+    "id": 5,
+    "usuario": "Admin",
+    "nombre": "Fernando",
+    "correo": "Admin@restaurante.test",
+    "password": "Admin123",
+    "rol": "Administrador"
+  }
+]
